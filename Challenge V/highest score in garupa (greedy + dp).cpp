@@ -1,3 +1,12 @@
+/*
+input:
+  2000 506 0.93 3
+output:
+  1142976.000
+  gr33-p470-m3
+  1104444.000
+  p144-m-p108-m-p112-gr4-m-p106-gr29
+*/
 #include<cstdio>
 const char *str[]={"m","gr","p"};
 const int maxk=1200+5,maxx=10+5;
