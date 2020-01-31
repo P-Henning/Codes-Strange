@@ -1,3 +1,10 @@
+/*
+input:
+  2000 506 0.93 3
+output:
+  1142976.000
+  1104444.000
+*/
 #include<cstdio>
 const int maxk=1200+5,maxx=10+5;
 const double EPS=1e-6;
