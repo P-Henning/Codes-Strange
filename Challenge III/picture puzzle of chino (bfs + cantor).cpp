@@ -101,12 +101,11 @@ int main(){
   if(!g1.vis[1]&&!g2.vis[1])printf("No Solution\n");
   else if(!g2.vis[1]||g1.step[1]<g2.step[1]){
     if(!g1.step[1])printf("No Need\n");
-    else{g1.print_path(1);printf("\n");}
+    else g1.print_path(1);
   }
   else{
     if(!g2.step[1])printf("No Need\n");
-    else{g2.print_path(1);printf("\n");}
+    else g2.print_path(1);
   }
-  system("pause");
   return 0;
 }
