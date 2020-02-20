@@ -6,13 +6,13 @@ char code[maxn],tape[maxn],filename[maxn];
 int match[maxn],len;
 int st[maxn],stktop;
 int errpos[maxn],postot;
-// read_filename(endc): ¶ÁÈëÎÄ¼şÃû,¶Áµ½endc×Ö·ûÊ±½áÊø 
+// read_filename(endc): è¯»å…¥æ–‡ä»¶å, è¯»åˆ°endcå­—ç¬¦æ—¶ç»“æŸ 
 void read_filename(char endc){
   char c;int cnt=0;
   while((c=getchar())!=endc)filename[cnt++]=c;
   filename[cnt]=0;
 }
-// read_code(fin,endc): ´ÓfinÊäÈëÁ÷ÖĞ¶ÁÈë³ÌĞò£¬¶Áµ½endc×Ö·ûÊ±½áÊø 
+// read_code(fin,endc): ä»finè¾“å…¥æµä¸­è¯»å…¥ç¨‹åº, è¯»åˆ°endcå­—ç¬¦æ—¶ç»“æŸ 
 void read_code(FILE *fin,char endc){
   if(!fin){printf(" # Filename Error\n");return;}
   char c;
@@ -31,15 +31,14 @@ void read_code(FILE *fin,char endc){
   }
   for(int i=0;i<stktop;i++)errpos[postot++]=st[i];
 }
-// run_code: ÔËĞĞ³ÌĞò 
+// run_code: è¿è¡Œç¨‹åº 
 void run_code(){
   if(postot){
     printf(" # Unmatched Brackets at ");
     for(int i=0;i<postot;i++)
-      printf("%d%s",errpos[i],i==postot-1?"\n":", ");
+      printf("%d%s",errpos[i],i==postot-1?"\n\n":", ");
     return;
   }
-  if(!len)return;
   char *ptr=tape+maxn/2,c;bool eof=0;
   for(int i=0;i<len;i++)switch(code[i]){
     case '>':ptr++;break;
@@ -49,35 +48,37 @@ void run_code(){
     case '.':putchar(*ptr);break;
     case ',':
       if(!eof)c=getchar();
-      if(c=='\n')eof=1;else *ptr=c;
+      if(!~c||c=='\n')eof=1;else *ptr=c;
       break;
     case '[':if(!(*ptr))i=match[i];break;
     case ']':if(*ptr)i=match[i]-1;break;
   }
   printf("\n");
 }
-// input_code(): ¶ÁÈë³ÌĞò 
-void input_code(){
-  char type;while((type=getchar())<=32);
+// input_code(): è¯»å…¥ç¨‹åº  
+bool input_code(){
+  char type;
+  while((type=getchar())<=32)if(!~type)return 0;
   if(type=='@'){
-    read_code(stdin,'@');getchar();
+    read_code(stdin,'@');
+    while(getchar()!='\n');
   }
   if(type=='$'){
-    read_filename('$');getchar();
+    read_filename('$');
+    while(getchar()!='\n');
     FILE *fin=fopen(filename,"r");
     read_code(fin,-1);
     if(fin)fclose(fin);
   }
+  return 1;
 }
 int main(){
   for(;;){
-    printf(" # BrainFuck Code (Begin and End with \'@\')\n");
-    printf(" # Or Filename    (Begin and End with \'$\')\n");
-    printf(" # Example: @,<,>[-<+>]++++++[-<-------->]<.@\n");
-    printf("            $code.bf$\n");
+    printf(" # BrainFuck Compiler\n");
     memset(tape,0,sizeof(tape));
     stktop=postot=len=0;
-    input_code();run_code();
+    if(!input_code())break;
+    run_code();
   }
   return 0;
 }
