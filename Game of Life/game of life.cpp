@@ -1,8 +1,9 @@
 #include<stdio.h>
 #include<string.h>
+#include<time.h>
 #include<conio.h>
 #include<windows.h>
-#define CELL "¡ö"
+#define CELL "â– "
 #define BOARD_SIZE 25
 #define DENSITY 0.4
 #define SPEED 3
@@ -45,6 +46,7 @@ void update_board(HANDLE hout,int n){
   memcpy(board,newboard,sizeof(board));
 }
 int main(){
+  srand(time(0));
   HANDLE hout=GetStdHandle(STD_OUTPUT_HANDLE);
   init_console(hout);
   new_board(hout,BOARD_SIZE);
