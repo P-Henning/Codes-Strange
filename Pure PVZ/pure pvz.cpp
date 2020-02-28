@@ -94,6 +94,7 @@ struct bullet{
   bool turn(){
     return prev+inter<=timcnt&&prev+inter+UPDINT>timcnt;
   }
+  bool update();
 };
 typedef linked_list<bullet>::node bulnode;
 linked_list<bullet> bullets;
@@ -114,6 +115,7 @@ struct zombie{
   bool sturn(){
     return timcnt<slow&&timcnt+UPDINT>=slow;
   }
+  void update();
 };
 typedef linked_list<zombie>::node zmbnode;
 linked_list<zombie> zombies;
@@ -237,6 +239,50 @@ void lawn::update(int x,int y){
   }
   if(dispos)*this=emptlawn;
 }
+bool bullet::update(){
+  if(turn())x++,prev=timcnt;
+  if(x>17||x>dest)return 1;
+  for(zmbnode *p=zombies.now,*q=0;p;p=p->next){
+    zombie &czmb=p->val;
+    if(x==czmb.x&&y==czmb.y){
+      czmb.hit-=attack;
+      if(slow&&!czmb.bulproof[czmb.state()]){
+        if(czmb.slow<timcnt){
+          for(int k=0;k<3;k++)czmb.winter[k]*=2;
+          czmb.binter*=2;
+        }
+        czmb.slow=timcnt+slow;
+      }
+      if(freeze&&!czmb.bulproof[czmb.state()])
+        czmb.freeze=timcnt+freeze;
+      if(czmb.hit<=0)zombies.remove(p,q);
+      if(single)return 1;
+    }
+    if(p->exi)q=p;
+  }
+}
+void zombie::update(){
+  lawn &pos=lawnmap[x/2][y];
+  if(pos.obstr)skip=0;
+  if(freeze<timcnt){
+    if(!skip){
+      if(~pos.typid&&bready()){
+        pos.hit-=attack,prev=timcnt;
+        if(pos.hit<=0)pos=emptlawn;
+      }
+      if(!~pos.typid&&wready())x--,prev=timcnt;
+    }
+    else if(wready()){
+      x--,prev=timcnt;
+      if(~pos.typid)skip--,x-=!(x&1);
+    }
+  }
+  if(sturn()){
+    for(int k=0;k<3;k++)winter[k]/=2;
+    binter/=2;
+  }
+}
+
 void print_background(){
   COORD pos;
   for(int i=0;i<6;i++){
@@ -252,53 +298,6 @@ void print_background(){
   SetConsoleTextAttribute(hout,76);
   printf("-");
 }
-void update_bullet(bulnode *p,bulnode *q){
-  bullet &bul=p->val;
-  if(bul.turn())bul.x++,bul.prev=timcnt;
-  if(bul.x>17||bul.x>bul.dest){bullets.remove(p,q);return;}
-  for(zmbnode *p2=zombies.now,*q2=0;p2;p2=p2->next){
-    zombie &czmb=p2->val;
-    if(bul.x==czmb.x&&bul.y==czmb.y){
-      czmb.hit-=bul.attack;
-      if(bul.slow&&!czmb.bulproof[czmb.state()]){
-        if(czmb.slow<timcnt){
-          for(int k=0;k<3;k++)czmb.winter[k]*=2;
-          czmb.binter*=2;
-        }
-        czmb.slow=timcnt+bul.slow;
-      }
-      if(bul.freeze&&!czmb.bulproof[czmb.state()])
-        czmb.freeze=timcnt+bul.freeze;
-      if(czmb.hit<=0)zombies.remove(p2,q2);
-      if(bul.single){bullets.remove(p,q);return;}
-    }
-    if(p2->exi)q2=p2;
-  }
-}
-void update_zombie(zmbnode *p,zmbnode *q){
-  zombie &zmb=p->val;
-  lawn &pos=lawnmap[zmb.x/2][zmb.y];
-  if(pos.obstr)zmb.skip=0;
-  if(zmb.freeze<timcnt){
-    if(!zmb.skip){
-      if(~pos.typid&&zmb.bready()){
-        pos.hit-=zmb.attack,zmb.prev=timcnt;
-        if(pos.hit<=0)pos=emptlawn;
-      }
-      if(!~pos.typid&&zmb.wready())
-        zmb.x--,zmb.prev=timcnt;
-    }
-    else if(zmb.wready()){
-      zmb.x--,zmb.prev=timcnt;
-      if(~pos.typid)zmb.skip--,zmb.x-=!(zmb.x&1);
-    }
-  }
-  if(zmb.sturn()){
-    for(int k=0;k<3;k++)zmb.winter[k]/=2;
-    zmb.binter/=2;
-  }
-}
-
 void init_console(){
   SetConsoleTitle("Pure PVZ");
   COORD size={25,6};
@@ -410,11 +409,13 @@ int update_game(){
   for(int i=0;i<9;i++)
     for(int j=0;j<5;j++)lawnmap[i][j].update(i,j);
   for(bulnode *p=bullets.now,*q=0;p;p=p->next){
-    update_bullet(p,q);
+    bullet &cbul=p->val;
+    if(cbul.update())bullets.remove(p,q);
     if(p->exi)q=p;
   }
   for(zmbnode *p=zombies.now,*q=0;p;p=p->next){
-    update_zombie(p,q);
+    zombie &czmb=p->val;
+    czmb.update();
     if(p->exi)q=p;
   }
   sunG.print();
