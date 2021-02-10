@@ -6,7 +6,7 @@
 #include<time.h>
 #include<conio.h>
 #include<windows.h>
-// 整个游戏每隔UPDINT个"时间"更新一次.可以看成单位时间里有UPDINT个单位"时间"
+// 整个游戏每隔UPDINT个"时间"更新一次
 // 代码中会出现很多类似于ready()和turn()的函数.在注释中,前者被描述为"是否准备更新",后者为"此时是否更新".实际表达的含义是,上一次更新的时间为prev,根据更新的间隔inter,这一次更新的时间就应该为prev+inter,仅在此时turn()=true.然而某些情况下此时并不一定就要更新,而是需要满足一定的条件,那么prev+inter之后的时间里ready()一直为true,直到条件满足,受到更新为止
 // 实际上,由于更新的时间一定是UPDINT的倍数,可能不存在prev+inter这个时间,因此代码中对这两个函数做了一些调整 
 #define UPDINT 100
@@ -42,7 +42,7 @@ int chid,chx,chy;
 struct sun_gener{
   // prod<uct>: 每次生成的阳光数量
   // inter<val>: 生成阳光的间隔
-  // prev<{ious>: 上一次生成阳光的时间
+  // prev<ious>: 上一次生成阳光的时间
   int prod,inter,prev;
   // turn(): 此时是否生成阳光
   // print(): 打印阳光的数量
@@ -140,23 +140,23 @@ lawn lawnlib[]={
 };
 // bullet: 子弹 
 struct bullet{
-  // type：字符
-  // typid：对应植物的种类编号
-  // x,y：列数,行数.这里的行列数与草地略有区别,因为一块草地是由两个字符拼起来的,而一个子弹只占一个字符
-  // attr：文本属性
-  // attack：攻击力
-  // slow：提供的减速时间
-  // freeze：提供的冻结时间
-  // dest：能到达的最远位置.由原植物的位置和射程决定
-  // inter：移动的间隔
-  // prev：上一次移动的时间
-  // single：是否只能伤害一个僵尸.用于处理大喷菇
+  // type: 字符
+  // typid: 对应植物的种类编号
+  // x,y: 列数,行数.这里的行列数与草地略有区别,因为一块草地是由两个字符拼起来的,而一个子弹只占一个字符
+  // attr<ibute>: 文本属性
+  // attack: 攻击力
+  // slow: 提供的减速时间
+  // freeze: 提供的冻结时间
+  // dest<ination>: 能到达的最远位置.由原植物的位置和射程决定
+  // inter<val>: 移动的间隔
+  // prev<ious>: 上一次移动的时间
+  // single: 是否只能伤害一个僵尸.用于处理大喷菇
   char type;int typid,x,y,attr;
   int attack,slow,freeze,dest,inter,prev;
   bool single;
   bool operator<(bullet rhs)const{return typid<rhs.typid;}
-  // turn()：此时是否移动
-  // update()：移动;对遇到的僵尸进行攻击,减速,冻结
+  // turn(): 此时是否移动
+  // update(): 移动;对遇到的僵尸进行攻击,减速,冻结
   bool turn(){
     return prev+inter<=timcnt&&prev+inter+UPDINT>timcnt;
   }
@@ -171,21 +171,21 @@ bullet bullib[]={
 // zombie: 僵尸
 // 每个僵尸分为三个状态,分别对应下文skip=0且hit>point,skip=0且hit<=point,skip>0的情况.对skip的区分可以实现撑杆僵尸跳跃前后不同的移动间隔;对hit的区分可以实现路障铁桶变成普僵等变化
 struct zombie{
-  // type[x]：三种状态对应的字符
-  // typid：种类编号
-  // x,y：列数,行数.这里的行列数与子弹相同
-  // attr<ibute>[x]：三种状态对应的文本属性
-  // attack：攻击力
-  // slow：减速效果结束的时间
-  // freeze：冻结效果结束的时间.冻结效果会覆盖减速效果
-  // skip：最多能跳过的植物数量.用于处理撑杆僵尸
-  // hit：生命值
-  // point：前两种状态的临界生命值
-  // w<alk>inter<val>[x]：三种状态对应的移动间隔
-  // b<ite>inter<val>：攻击间隔
-  // prev<ious>：上一次移动/攻击的时间.由于移动和攻击不可能同时进行,只记一个prev就够了
-  // proof[x]：三种状态下是否防炸弹的减速和冻结效果
-  // bul<let>proof[x]：三种状态下是否防子弹的减速和冻结效果
+  // type[x]: 三种状态对应的字符
+  // typid: 种类编号
+  // x,y: 列数,行数.这里的行列数与子弹相同
+  // attr<ibute>[x]: 三种状态对应的文本属性
+  // attack: 攻击力
+  // slow: 减速效果结束的时间
+  // freeze: 冻结效果结束的时间.冻结效果会覆盖减速效果
+  // skip: 最多能跳过的植物数量.用于处理撑杆僵尸
+  // hit: 生命值
+  // point: 前两种状态的临界生命值
+  // w<alk>inter<val>[x]: 三种状态对应的移动间隔
+  // b<ite>inter<val>: 攻击间隔
+  // prev<ious>: 上一次移动/攻击的时间.由于移动和攻击不可能同时进行,只记一个prev就够了
+  // proof[x]: 三种状态下是否防炸弹的减速和冻结效果
+  // bul<let>proof[x]: 三种状态下是否防子弹的减速和冻结效果
   char type[3];int typid,x,y,attr[3];
   int attack,slow,freeze,skip,hit,point;
   int winter[3],binter,prev;
